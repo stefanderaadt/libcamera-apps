@@ -1,21 +1,54 @@
 /* SPDX-License-Identifier: BSD-2-Clause */
 /*
- * Copyright (C) 2021, Raspberry Pi (Trading) Ltd.
+ * Copyright (C) 2020, Raspberry Pi (Trading) Ltd.
  *
- * libcamera_detect.cpp - take pictures when objects are detected
+ * libcamera_vid.cpp - libcamera video record app.
  */
 
-// Example: libcamera-detect --post-process-file object_detect_tf.json --lores-width 400 --lores-height 300 -t 0 --object cat -o cat%03d.jpg
-
 #include <chrono>
-
-#include "core/libcamera_app.hpp"
-#include "core/still_options.hpp"
-
-#include "image/image.hpp"
+#include <poll.h>
+#include <signal.h>
+#include <sys/signalfd.h>
+#include <sys/stat.h>
 
 #include "core/libcamera_encoder.hpp"
 #include "output/output.hpp"
+
+using namespace std::placeholders;
+
+// Some keypress/signal handling.
+
+static int signal_received;
+static void default_signal_handler(int signal_number)
+{
+	signal_received = signal_number;
+	LOG(1, "Received signal " << signal_number);
+}
+
+static int get_key_or_signal(VideoOptions const *options, pollfd p[1])
+{
+	int key = 0;
+	if (options->keypress)
+	{
+		poll(p, 1, 0);
+		if (p[0].revents & POLLIN)
+		{
+			char *user_string = nullptr;
+			size_t len;
+			[[maybe_unused]] size_t r = getline(&user_string, &len, stdin);
+			key = user_string[0];
+		}
+	}
+	if (options->signal)
+	{
+		if (signal_received == SIGUSR1)
+			key = '\n';
+		else if (signal_received == SIGUSR2)
+			key = 'x';
+		signal_received = 0;
+	}
+	return key;
+}
 
 static int get_colourspace_flags(std::string const &codec)
 {
@@ -26,14 +59,23 @@ static int get_colourspace_flags(std::string const &codec)
 }
 
 // The main even loop for the application.
+
 static void event_loop(LibcameraEncoder &app)
 {
 	VideoOptions const *options = app.GetOptions();
+	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
+	app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
+
 	app.OpenCamera();
 	app.ConfigureVideo(get_colourspace_flags(options->codec));
 	app.StartEncoder();
 	app.StartCamera();
 	auto start_time = std::chrono::high_resolution_clock::now();
+
+	// Monitoring for keypresses and signals.
+	signal(SIGUSR1, default_signal_handler);
+	signal(SIGUSR2, default_signal_handler);
+	pollfd p[1] = { { STDIN_FILENO, POLLIN, 0 } };
 
 	for (unsigned int count = 0;; count++)
 	{
@@ -42,35 +84,38 @@ static void event_loop(LibcameraEncoder &app)
 			return;
 		else if (msg.type != LibcameraEncoder::MsgType::RequestComplete)
 			throw std::runtime_error("unrecognised message!");
+		int key = get_key_or_signal(options, p);
+		if (key == '\n')
+			output->Signal();
+
+		LOG(2, "Viewfinder frame " << count);
+		auto now = std::chrono::high_resolution_clock::now();
+		bool timeout = !options->frames && options->timeout &&
+					   (now - start_time > std::chrono::milliseconds(options->timeout));
+		bool frameout = options->frames && count >= options->frames;
+		if (timeout || frameout || key == 'x' || key == 'X')
+		{
+			if (timeout)
+				LOG(1, "Halting: reached timeout of " << options->timeout << " milliseconds.");
+			app.StopCamera(); // stop complains if encoder very slow to close
+			app.StopEncoder();
+			return;
+		}
 
 		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
 
-		auto now = std::chrono::high_resolution_clock::now();
-		if (options->timeout && now - start_time > std::chrono::milliseconds(options->timeout))
-			return;
-
-		LOG(1, "Start1");
-
+		LOG(1, "motion start");
 		bool motion_detected = false;
-		LOG(1, "Start2");
 		completed_request->post_process_metadata.Get("motion_detect.result", motion_detected);
-		LOG(1, "Start3");
 
 		if (motion_detected)
 		{
-			app.StopCamera();
-			app.Teardown();
-			app.ConfigureStill();
-			app.StartCamera();
-			LOG(1, "MOTION detected");
+			LOG(1, "motion detected");
 		}
+		LOG(1, "motion end");
 
-		LOG(1, "Start4");
-
-		// Stream video
 		app.EncodeBuffer(completed_request, app.VideoStream());
-
-		LOG(1, "Start5");
+		app.ShowPreview(completed_request, app.VideoStream());
 	}
 }
 
