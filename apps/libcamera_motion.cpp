@@ -90,21 +90,20 @@ static void event_loop(LibcameraEncoder &app)
 
 		LOG(2, "Viewfinder frame " << count);
 		auto now = std::chrono::high_resolution_clock::now();
-		bool timeout = !options->frames && options->timeout &&
-					   (now - start_time > std::chrono::milliseconds(options->timeout));
-		bool frameout = options->frames && count >= options->frames;
-		if (timeout || frameout || key == 'x' || key == 'X')
-		{
-			if (timeout)
-				LOG(1, "Halting: reached timeout of " << options->timeout << " milliseconds.");
-			app.StopCamera(); // stop complains if encoder very slow to close
-			app.StopEncoder();
-			return;
-		}
+		// bool timeout = !options->frames && options->timeout &&
+		// 			   (now - start_time > std::chrono::milliseconds(options->timeout));
+		// bool frameout = options->frames && count >= options->frames;
+		// if (timeout || frameout || key == 'x' || key == 'X')
+		// {
+		// 	if (timeout)
+		// 		LOG(1, "Halting: reached timeout of " << options->timeout << " milliseconds.");
+		// 	app.StopCamera(); // stop complains if encoder very slow to close
+		// 	app.StopEncoder();
+		// 	return;
+		// }
 
 		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
 
-		LOG(1, "motion start");
 		bool motion_detected = false;
 		completed_request->post_process_metadata.Get("motion_detect.result", motion_detected);
 
@@ -112,10 +111,8 @@ static void event_loop(LibcameraEncoder &app)
 		{
 			LOG(1, "motion detected");
 		}
-		LOG(1, "motion end");
 
 		app.EncodeBuffer(completed_request, app.VideoStream());
-		app.ShowPreview(completed_request, app.VideoStream());
 	}
 }
 
