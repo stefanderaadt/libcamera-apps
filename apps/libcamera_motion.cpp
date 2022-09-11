@@ -89,7 +89,7 @@ static void event_loop(LibcameraEncoder &app)
 			output->Signal();
 
 		LOG(2, "Viewfinder frame " << count);
-		auto now = std::chrono::high_resolution_clock::now();
+		// auto now = std::chrono::high_resolution_clock::now();
 		// bool timeout = !options->frames && options->timeout &&
 		// 			   (now - start_time > std::chrono::milliseconds(options->timeout));
 		// bool frameout = options->frames && count >= options->frames;
@@ -109,7 +109,7 @@ static void event_loop(LibcameraEncoder &app)
 
 		if (motion_detected)
 		{
-			LOG(1, "motion detected: " << now);
+			LOG(1, "motion detected");
 		}
 
 		app.EncodeBuffer(completed_request, app.VideoStream());
