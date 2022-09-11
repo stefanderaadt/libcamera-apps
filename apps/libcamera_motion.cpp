@@ -26,7 +26,6 @@ static void event_loop(LibcameraEncoder &app)
 	app.ConfigureViewfinder();
 	app.StartCamera();
 	auto start_time = std::chrono::high_resolution_clock::now();
-	unsigned int last_capture_frame = 0;
 
 	for (unsigned int count = 0;; count++)
 	{
