@@ -109,7 +109,7 @@ static void event_loop(LibcameraEncoder &app)
 
 		if (motion_detected)
 		{
-			LOG(1, "motion detected");
+			LOG(1, "motion detected: " << now);
 		}
 
 		app.EncodeBuffer(completed_request, app.VideoStream());
