@@ -21,14 +21,11 @@
 
 static void event_loop(LibcameraEncoder &app)
 {
-	LOG(1, "Start3");
 	VideoOptions const *options = app.GetOptions();
 	app.OpenCamera();
 	app.ConfigureViewfinder();
 	app.StartCamera();
 	auto start_time = std::chrono::high_resolution_clock::now();
-
-	LOG(1, "Start4");
 
 	for (unsigned int count = 0;; count++)
 	{
@@ -36,18 +33,18 @@ static void event_loop(LibcameraEncoder &app)
 		if (msg.type == LibcameraApp::MsgType::Quit)
 			return;
 
-		LOG(1, "Start4");
-
 		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
 
 		auto now = std::chrono::high_resolution_clock::now();
 		if (options->timeout && now - start_time > std::chrono::milliseconds(options->timeout))
 			return;
 
-		LOG(1, "Start5");
+		LOG(1, "Start1");
 
 		bool motion_detected = false;
+		LOG(1, "Start2");
 		completed_request->post_process_metadata.Get("motion_detect.result", motion_detected);
+		LOG(1, "Start3");
 
 		if (motion_detected)
 		{
@@ -58,8 +55,12 @@ static void event_loop(LibcameraEncoder &app)
 			LOG(1, "MOTION detected");
 		}
 
+		LOG(1, "Start4");
+
 		// Stream video
 		app.EncodeBuffer(completed_request, app.VideoStream());
+
+		LOG(1, "Start5");
 	}
 }
 
@@ -67,12 +68,10 @@ int main(int argc, char *argv[])
 {
 	try
 	{
-		LOG(1, "Start1");
 		LibcameraEncoder app;
 		VideoOptions *options = app.GetOptions();
 		if (options->Parse(argc, argv))
 		{
-			LOG(1, "Start2");
 			if (options->verbose >= 2)
 				options->Print();
 
