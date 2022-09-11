@@ -17,21 +17,31 @@
 #include "core/libcamera_encoder.hpp"
 #include "output/output.hpp"
 
-// The main even loop for the application.
+static int get_colourspace_flags(std::string const &codec)
+{
+	if (codec == "mjpeg" || codec == "yuv420")
+		return LibcameraEncoder::FLAG_VIDEO_JPEG_COLOURSPACE;
+	else
+		return LibcameraEncoder::FLAG_VIDEO_NONE;
+}
 
+// The main even loop for the application.
 static void event_loop(LibcameraEncoder &app)
 {
 	VideoOptions const *options = app.GetOptions();
 	app.OpenCamera();
-	app.ConfigureViewfinder();
+	app.ConfigureVideo(get_colourspace_flags(options->codec));
+	app.StartEncoder();
 	app.StartCamera();
 	auto start_time = std::chrono::high_resolution_clock::now();
 
 	for (unsigned int count = 0;; count++)
 	{
-		LibcameraApp::Msg msg = app.Wait();
-		if (msg.type == LibcameraApp::MsgType::Quit)
+		LibcameraEncoder::Msg msg = app.Wait();
+		if (msg.type == LibcameraEncoder::MsgType::Quit)
 			return;
+		else if (msg.type != LibcameraEncoder::MsgType::RequestComplete)
+			throw std::runtime_error("unrecognised message!");
 
 		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
 
