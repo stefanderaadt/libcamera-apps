@@ -62,7 +62,7 @@ static int get_colourspace_flags(std::string const &codec)
 
 static void event_loop(LibcameraEncoder &app)
 {
-	auto last_motion_time = std::chrono::milliseconds(0);
+	auto last_motion_time = std::chrono::milliseconds(1);
 
 	VideoOptions const *options = app.GetOptions();
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
