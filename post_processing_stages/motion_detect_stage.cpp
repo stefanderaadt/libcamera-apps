@@ -127,17 +127,24 @@ void MotionDetectStage::Configure()
 
 bool MotionDetectStage::Process(CompletedRequestPtr &completed_request)
 {
+	LOG(1, "Motion Process 1");
 	if (!stream_)
 		return false;
 
+	LOG(1, "Motion Process 2");
+
 	if (config_.frame_period && completed_request->sequence % config_.frame_period)
 		return false;
+
+	LOG(1, "Motion Process 3");
 
 	libcamera::Span<uint8_t> buffer = app_->Mmap(completed_request->buffers[stream_])[0];
 	uint8_t *image = buffer.data();
 
 	// We need to protect access to first_time_, previous_frame_ and motion_detected_.
 	std::lock_guard<std::mutex> lock(mutex_);
+
+	LOG(1, "Motion Process 4");
 
 	if (first_time_)
 	{
@@ -154,6 +161,8 @@ bool MotionDetectStage::Process(CompletedRequestPtr &completed_request)
 
 		return false;
 	}
+
+	LOG(1, "Motion Process 5");
 
 	bool motion_detected = false;
 	unsigned int regions = 0;
@@ -179,6 +188,8 @@ bool MotionDetectStage::Process(CompletedRequestPtr &completed_request)
 
 	motion_detected_ = motion_detected;
 	completed_request->post_process_metadata.Set("motion_detect.result", motion_detected);
+
+	LOG(1, "Motion Process 6");
 
 	return false;
 }
