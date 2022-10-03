@@ -64,8 +64,6 @@ static void event_loop(LibcameraEncoder &app)
 {
 	auto last_motion_time = std::chrono::high_resolution_clock::now();
 
-	LOG(1, "circular: " << options->circular);
-
 	VideoOptions const *options = app.GetOptions();
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
 	app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
