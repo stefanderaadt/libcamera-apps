@@ -79,32 +79,32 @@ void Output::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t
 
 Output *Output::Create(VideoOptions const *options)
 {
-	Log(1, "output0");
+	LOG(1, "output0");
 
 	if (options->codec == "libav")
 	{
-		Log(1, "output1");
+		LOG(1, "output1");
 		return new Output(options);
 	}
 
 	if (strncmp(options->output.c_str(), "udp://", 6) == 0 || strncmp(options->output.c_str(), "tcp://", 6) == 0)
 	{
-		Log(1, "output2");
+		LOG(1, "output2");
 		return new NetOutput(options);
 	}
 	else if (options->circular)
 	{
-		Log(1, "output3");
+		LOG(1, "output3");
 		return new CircularOutput(options);
 	}
 	else if (!options->output.empty())
 	{
-		Log(1, "output4");
+		LOG(1, "output4");
 		return new FileOutput(options);
 	}
 	else
 	{
-		Log(1, "output5");
+		LOG(1, "output5");
 		return new Output(options);
 	}
 }
