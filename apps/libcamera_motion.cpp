@@ -111,6 +111,7 @@ static void event_loop(LibcameraEncoder &app)
 		if (now - last_motion_time > std::chrono::milliseconds(5000) && motion_detected)
 		{
 			last_motion_time = std::chrono::high_resolution_clock::now();
+			output->Signal();
 			LOG(1, "motion detected");
 		}
 
