@@ -19,7 +19,7 @@ struct Header
 static_assert(sizeof(Header) % ALIGN == 0, "Header should have aligned size");
 
 // Size of buffer (options->circular) is given in megabytes.
-CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), cb_(options->circular<<20)
+CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), cb_(options->circular << 20)
 {
 	// Open this now, so that we can get any complaints out of the way
 	if (options_->output == "-")
@@ -36,6 +36,41 @@ CircularOutput::~CircularOutput()
 {
 	// We do have to skip to the first I frame before dumping stuff to disk. If there are
 	// no I frames you will get nothing. Caveat emptor, methinks.
+	// unsigned int total = 0, frames = 0;
+	// bool seen_keyframe = false;
+	// Header header;
+	// FILE *fp = fp_; // can't capture a class member in a lambda
+	// while (!cb_.Empty())
+	// {
+	// 	uint8_t *dst = (uint8_t *)&header;
+	// 	cb_.Read(
+	// 		[&dst](void *src, int n)
+	// 		{
+	// 			memcpy(dst, src, n);
+	// 			dst += n;
+	// 		},
+	// 		sizeof(header));
+	// 	seen_keyframe |= header.keyframe;
+	// 	if (seen_keyframe)
+	// 	{
+	// 		cb_.Read([fp](void *src, int n) { fwrite(src, 1, n, fp); }, header.length);
+	// 		cb_.Skip((ALIGN - header.length) & (ALIGN - 1));
+	// 		total += header.length;
+	// 		if (fp_timestamps_)
+	// 		{
+	// 			Output::timestampReady(header.timestamp);
+	// 		}
+	// 		frames++;
+	// 	}
+	// 	else
+	// 		cb_.Skip((header.length + ALIGN - 1) & ~(ALIGN - 1));
+	// }
+	// fclose(fp_);
+	// LOG(1, "Wrote " << total << " bytes (" << frames << " frames)");
+}
+
+void CircularOutput::save()
+{
 	unsigned int total = 0, frames = 0;
 	bool seen_keyframe = false;
 	Header header;
@@ -44,7 +79,8 @@ CircularOutput::~CircularOutput()
 	{
 		uint8_t *dst = (uint8_t *)&header;
 		cb_.Read(
-			[&dst](void *src, int n) {
+			[&dst](void *src, int n)
+			{
 				memcpy(dst, src, n);
 				dst += n;
 			},
@@ -66,6 +102,16 @@ CircularOutput::~CircularOutput()
 	}
 	fclose(fp_);
 	LOG(1, "Wrote " << total << " bytes (" << frames << " frames)");
+
+	// Open new file
+	if (options_->output == "-")
+		fp_ = stdout;
+	else if (!options_->output.empty())
+	{
+		fp_ = fopen(options_->output.c_str(), "w");
+	}
+	if (!fp_)
+		throw std::runtime_error("could not open output file");
 }
 
 void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t flags)
@@ -79,7 +125,8 @@ void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, 
 		Header header;
 		uint8_t *dst = (uint8_t *)&header;
 		cb_.Read(
-			[&dst](void *src, int n) {
+			[&dst](void *src, int n)
+			{
 				memcpy(dst, src, n);
 				dst += n;
 			},

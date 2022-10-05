@@ -32,6 +32,7 @@ protected:
 	};
 	virtual void outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t flags);
 	virtual void timestampReady(int64_t timestamp);
+	virtual void save();
 	VideoOptions const *options_;
 	FILE *fp_timestamps_;
 

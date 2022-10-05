@@ -57,6 +57,7 @@ class CircularOutput : public Output
 public:
 	CircularOutput(VideoOptions const *options);
 	~CircularOutput();
+	void save() override;
 
 protected:
 	void outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t flags) override;

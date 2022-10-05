@@ -112,7 +112,7 @@ static void event_loop(LibcameraEncoder &app)
 		{
 			LOG(1, "motion detected");
 			last_motion_time = std::chrono::high_resolution_clock::now();
-			output->Signal();
+			output->save();
 		}
 
 		app.EncodeBuffer(completed_request, app.VideoStream());

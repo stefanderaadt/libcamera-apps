@@ -77,6 +77,10 @@ void Output::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t
 	// Supply this so that a vanilla Output gives you an object that outputs no buffers.
 }
 
+void Output::save()
+{
+}
+
 Output *Output::Create(VideoOptions const *options)
 {
 	LOG(1, "output0");
