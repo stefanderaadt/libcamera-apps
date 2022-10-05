@@ -42,6 +42,7 @@ public:
 		}
 		memcpy(&buf_[wptr_], ptr, n);
 		wptr_ += n;
+		LOG(1, "Size of buffer: " << sizeof(buf_));
 	}
 
 private:

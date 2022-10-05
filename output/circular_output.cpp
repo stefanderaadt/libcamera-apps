@@ -55,7 +55,6 @@ void CircularOutput::save()
 		seen_keyframe |= header.keyframe;
 		if (seen_keyframe)
 		{
-			LOG(1, "SEEN KEYFRAME.");
 			cb_.Read([fp](void *src, int n) { fwrite(src, 1, n, fp); }, header.length);
 			cb_.Skip((ALIGN - header.length) & (ALIGN - 1));
 			total += header.length;
@@ -67,7 +66,6 @@ void CircularOutput::save()
 		}
 		else
 		{
-			LOG(1, "NO NO NONONONO NOT SEEN KEYFRAME.");
 			cb_.Skip((header.length + ALIGN - 1) & ~(ALIGN - 1));
 		}
 	}
