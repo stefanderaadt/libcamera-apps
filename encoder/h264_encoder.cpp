@@ -61,10 +61,9 @@ H264Encoder::H264Encoder(VideoOptions const *options, StreamInfo const &info)
 	}
 	if (!options->profile.empty())
 	{
-		static const std::map<std::string, int> profile_map =
-			{ { "baseline", V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE },
-			  { "main", V4L2_MPEG_VIDEO_H264_PROFILE_MAIN },
-			  { "high", V4L2_MPEG_VIDEO_H264_PROFILE_HIGH } };
+		static const std::map<std::string, int> profile_map = { { "baseline", V4L2_MPEG_VIDEO_H264_PROFILE_BASELINE },
+																{ "main", V4L2_MPEG_VIDEO_H264_PROFILE_MAIN },
+																{ "high", V4L2_MPEG_VIDEO_H264_PROFILE_HIGH } };
 		auto it = profile_map.find(options->profile);
 		if (it == profile_map.end())
 			throw std::runtime_error("no such profile " + options->profile);
@@ -75,10 +74,9 @@ H264Encoder::H264Encoder(VideoOptions const *options, StreamInfo const &info)
 	}
 	if (!options->level.empty())
 	{
-		static const std::map<std::string, int> level_map =
-			{ { "4", V4L2_MPEG_VIDEO_H264_LEVEL_4_0 },
-			  { "4.1", V4L2_MPEG_VIDEO_H264_LEVEL_4_1 },
-			  { "4.2", V4L2_MPEG_VIDEO_H264_LEVEL_4_2 } };
+		static const std::map<std::string, int> level_map = { { "4", V4L2_MPEG_VIDEO_H264_LEVEL_4_0 },
+															  { "4.1", V4L2_MPEG_VIDEO_H264_LEVEL_4_1 },
+															  { "4.2", V4L2_MPEG_VIDEO_H264_LEVEL_4_2 } };
 		auto it = level_map.find(options->level);
 		if (it == level_map.end())
 			throw std::runtime_error("no such level " + options->level);
@@ -358,6 +356,7 @@ void H264Encoder::outputThread()
 			}
 		}
 
+		LOG(1, "outputready callback called here:");
 		output_ready_callback_(item.mem, item.bytes_used, item.timestamp_us, item.keyframe);
 		v4l2_buffer buf = {};
 		v4l2_plane planes[VIDEO_MAX_PLANES] = {};
