@@ -85,8 +85,6 @@ void CircularOutput::save()
 
 void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t flags)
 {
-	LOG(1, "Output ready callback................................................................");
-
 	// First make sure there's enough space.
 	int pad = (ALIGN - size) & (ALIGN - 1);
 	while (size + pad + sizeof(Header) > cb_.Available())
