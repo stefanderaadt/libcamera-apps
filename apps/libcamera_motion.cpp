@@ -109,11 +109,15 @@ static void event_loop(LibcameraEncoder &app)
 			LOG(1, "motion detected");
 			last_motion_time = std::chrono::high_resolution_clock::now();
 
-			app.StopCamera();
+			app.StopCamera(); // stop complains if encoder very slow to close
 			app.StopEncoder();
+			return;
 
-			app.StartEncoder();
-			app.StartCamera();
+			// app.StopCamera();
+			// app.StopEncoder();
+
+			// app.StartEncoder();
+			// app.StartCamera();
 
 			// // Delete old output and trigger destructor to save to file
 			// output.reset();
