@@ -65,6 +65,7 @@ static void event_loop(LibcameraEncoder &app)
 	VideoOptions const *options = app.GetOptions();
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
 	app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
+	app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, output.get(), _1));
 
 	app.OpenCamera();
 	app.ConfigureVideo(get_colourspace_flags(options->codec));
@@ -80,6 +81,13 @@ static void event_loop(LibcameraEncoder &app)
 	for (unsigned int count = 0; ; count++)
 	{
 		LibcameraEncoder::Msg msg = app.Wait();
+		if (msg.type == LibcameraApp::MsgType::Timeout)
+		{
+			LOG_ERROR("ERROR: Device timeout detected, attempting a restart!!!");
+			app.StopCamera();
+			app.StartCamera();
+			continue;
+		}
 		if (msg.type == LibcameraEncoder::MsgType::Quit)
 			return;
 		else if (msg.type != LibcameraEncoder::MsgType::RequestComplete)
