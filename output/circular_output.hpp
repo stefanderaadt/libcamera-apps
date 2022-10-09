@@ -21,6 +21,7 @@ public:
 	// The dst function allows bytes read to go straight to memory or a file etc.
 	void Read(std::function<void(void *src, unsigned int n)> dst, unsigned int n)
 	{
+		LOG(1, "READ: sizeof ptr: " << sizeof(&buf_[rptr_]) << " ptr: " << &buf_[rptr_] << " n: " << n);
 		if (rptr_ + n >= size_)
 		{
 			dst(&buf_[rptr_], size_ - rptr_);
@@ -33,7 +34,7 @@ public:
 	void Pad(unsigned int n) { wptr_ = (wptr_ + n) % size_; }
 	void Write(const void *ptr, unsigned int n)
 	{
-		//LOG(1, "sizeof ptr: " << sizeof(ptr) << " n: " << n << " size_: " << size_);
+		LOG(1, "WRITE: sizeof ptr: " << sizeof(ptr) << " ptr: " << ptr << " n: " << n);
 		if (wptr_ + n >= size_)
 		{
 			memcpy(&buf_[wptr_], ptr, size_ - wptr_);

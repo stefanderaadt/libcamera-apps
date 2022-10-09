@@ -71,8 +71,6 @@ CircularOutput::~CircularOutput()
 
 void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t flags)
 {
-	LOG(1, "1: sizeof mem: " << sizeof(mem) << " mem: " << mem << " size: " << size);
-
 	// First make sure there's enough space.
 	int pad = (ALIGN - size) & (ALIGN - 1);
 	while (size + pad + sizeof(Header) > cb_.Available())
@@ -91,7 +89,7 @@ void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, 
 		cb_.Skip((header.length + ALIGN - 1) & ~(ALIGN - 1));
 	}
 
-	LOG(1, "2: sizeof mem: " << sizeof(mem) << " mem: " << mem << " size: " << size);
+	LOG(1, "WRITE: sizeof mem: " << sizeof(mem) << " mem: " << mem << " size: " << size);
 	Header header = { static_cast<unsigned int>(size), !!(flags & FLAG_KEYFRAME), timestamp_us };
 	cb_.Write(&header, sizeof(header));
 	cb_.Write(mem, size);
