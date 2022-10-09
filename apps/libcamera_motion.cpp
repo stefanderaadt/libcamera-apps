@@ -103,7 +103,7 @@ static void event_loop(LibcameraEncoder &app)
 			last_motion_time = std::chrono::high_resolution_clock::now();
 
 			// Delete old output and trigger destructor to save to file
-			delete output;
+			output.reset();
 
 			// Create new output
 			output = std::unique_ptr<Output>(Output::Create(options));
