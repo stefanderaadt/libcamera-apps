@@ -46,6 +46,7 @@ CircularOutput::~CircularOutput()
 		cb_.Read(
 			[&dst](void *src, int n)
 			{
+				LOG(1, "dst READ: sizeof src: " << sizeof(src) << " src: " << src << " n: " << n);
 				memcpy(dst, src, n);
 				dst += n;
 			},
@@ -56,8 +57,8 @@ CircularOutput::~CircularOutput()
 			cb_.Read(
 				[fp](void *src, int n)
 				{
-					//LOG(1, "READ: sizeof ptr: " << sizeof(&buf_[rptr_]) << " ptr: " << &buf_[rptr_] << " n: " << n);
-					fwrite(src, n, 1, fp);
+					LOG(1, "FP READ: sizeof src: " << sizeof(src) << " src: " << src << " n: " << n);
+					fwrite(src, 1, n, fp);
 				},
 				header.length);
 			cb_.Skip((ALIGN - header.length) & (ALIGN - 1));
