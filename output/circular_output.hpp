@@ -33,6 +33,7 @@ public:
 	void Pad(unsigned int n) { wptr_ = (wptr_ + n) % size_; }
 	void Write(const void *ptr, unsigned int n)
 	{
+		LOG(1, "sizeof buffer: " << sizeof(buf) << " wptr_: " << wptr_ << " size_: " << size_);
 		if (wptr_ + n >= size_)
 		{
 			memcpy(&buf_[wptr_], ptr, size_ - wptr_);

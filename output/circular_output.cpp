@@ -70,7 +70,7 @@ void CircularOutput::save()
 		}
 	}
 	fclose(fp_);
-	// LOG(1, "Wrote " << total << " bytes (" << frames << " frames)");
+	LOG(1, "Wrote " << total << " bytes (" << frames << " frames)");
 
 	// Open new file
 	if (options_->output == "-")
