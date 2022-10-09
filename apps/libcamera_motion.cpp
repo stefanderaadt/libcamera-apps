@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2020, Raspberry Pi (Trading) Ltd.
  *
- * libcamera_motion.cpp - libcamera motion detection app.
+ * libcamera_vid.cpp - libcamera video record app.
  */
 
 #include <chrono>
@@ -62,16 +62,16 @@ static int get_colourspace_flags(std::string const &codec)
 
 static void event_loop(LibcameraEncoder &app)
 {
-	auto last_motion_time = std::chrono::high_resolution_clock::now();
-
 	VideoOptions const *options = app.GetOptions();
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
 	app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
+	app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, output.get(), _1));
 
 	app.OpenCamera();
 	app.ConfigureVideo(get_colourspace_flags(options->codec));
 	app.StartEncoder();
 	app.StartCamera();
+	// auto start_time = std::chrono::high_resolution_clock::now();
 
 	// Monitoring for keypresses and signals.
 	signal(SIGUSR1, default_signal_handler);
@@ -81,6 +81,13 @@ static void event_loop(LibcameraEncoder &app)
 	for (unsigned int count = 0;; count++)
 	{
 		LibcameraEncoder::Msg msg = app.Wait();
+		if (msg.type == LibcameraApp::MsgType::Timeout)
+		{
+			LOG_ERROR("ERROR: Device timeout detected, attempting a restart!!!");
+			app.StopCamera();
+			app.StartCamera();
+			continue;
+		}
 		if (msg.type == LibcameraEncoder::MsgType::Quit)
 			return;
 		else if (msg.type != LibcameraEncoder::MsgType::RequestComplete)
@@ -90,7 +97,18 @@ static void event_loop(LibcameraEncoder &app)
 			output->Signal();
 
 		LOG(2, "Viewfinder frame " << count);
-		auto now = std::chrono::high_resolution_clock::now();
+		// auto now = std::chrono::high_resolution_clock::now();
+		// bool timeout = !options->frames && options->timeout &&
+		// 			   (now - start_time > std::chrono::milliseconds(options->timeout));
+		// bool frameout = options->frames && count >= options->frames;
+		// if (timeout || frameout || key == 'x' || key == 'X')
+		// {
+		// 	if (timeout)
+		// 		LOG(1, "Halting: reached timeout of " << options->timeout << " milliseconds.");
+		// 	app.StopCamera(); // stop complains if encoder very slow to close
+		// 	app.StopEncoder();
+		// 	return;
+		// }
 
 		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
 
@@ -111,6 +129,7 @@ static void event_loop(LibcameraEncoder &app)
 		}
 
 		app.EncodeBuffer(completed_request, app.VideoStream());
+		//app.ShowPreview(completed_request, app.VideoStream());
 	}
 }
 
