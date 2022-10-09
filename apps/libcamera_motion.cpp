@@ -101,6 +101,8 @@ static void event_loop(LibcameraEncoder &app)
 
 		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
 
+		app.EncodeBuffer(completed_request, app.VideoStream());
+
 		bool motion_detected = false;
 		completed_request->post_process_metadata.Get("motion_detect.result", motion_detected);
 
@@ -113,8 +115,8 @@ static void event_loop(LibcameraEncoder &app)
 			// app.StopEncoder();
 			// return;
 
-			app.StopCamera();
-			app.StopEncoder();
+			// app.StopCamera();
+			// app.StopEncoder();
 
 			// Delete old output and trigger destructor to save to file
 			output.reset();
@@ -123,11 +125,9 @@ static void event_loop(LibcameraEncoder &app)
 			output = std::unique_ptr<Output>(Output::Create(options));
 			app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
 
-			app.StartEncoder();
-			app.StartCamera();
+			// app.StartEncoder();
+			// app.StartCamera();
 		}
-
-		app.EncodeBuffer(completed_request, app.VideoStream());
 	}
 }
 
