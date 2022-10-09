@@ -109,12 +109,18 @@ static void event_loop(LibcameraEncoder &app)
 			LOG(1, "motion detected");
 			last_motion_time = std::chrono::high_resolution_clock::now();
 
-			// Delete old output and trigger destructor to save to file
-			output.reset();
+			//app.StopCamera();
+			app.StopEncoder();
 
-			// Create new output
-			output = std::unique_ptr<Output>(Output::Create(options));
-			app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
+			app.StartEncoder();
+			//app.StartCamera();
+
+			// // Delete old output and trigger destructor to save to file
+			// output.reset();
+
+			// // Create new output
+			// output = std::unique_ptr<Output>(Output::Create(options));
+			// app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
 		}
 
 		app.EncodeBuffer(completed_request, app.VideoStream());

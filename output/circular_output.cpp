@@ -46,7 +46,6 @@ CircularOutput::~CircularOutput()
 		cb_.Read(
 			[&dst](void *src, int n)
 			{
-				LOG(1, "dst READ: sizeof src: " << sizeof(src) << " src: " << src << " n: " << n);
 				memcpy(dst, src, n);
 				dst += n;
 			},
@@ -54,13 +53,7 @@ CircularOutput::~CircularOutput()
 		seen_keyframe |= header.keyframe;
 		if (seen_keyframe)
 		{
-			cb_.Read(
-				[fp](void *src, int n)
-				{
-					LOG(1, "FP READ: sizeof src: " << sizeof(src) << " src: " << src << " n: " << n);
-					fwrite(src, 1, n, fp);
-				},
-				header.length);
+			cb_.Read([fp](void *src, int n) { fwrite(src, 1, n, fp); }, header.length);
 			cb_.Skip((ALIGN - header.length) & (ALIGN - 1));
 			total += header.length;
 			if (fp_timestamps_)
@@ -96,7 +89,6 @@ void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, 
 		cb_.Skip((header.length + ALIGN - 1) & ~(ALIGN - 1));
 	}
 
-	LOG(1, "WRITE: sizeof mem: " << sizeof(mem) << " mem: " << mem << " size: " << size);
 	Header header = { static_cast<unsigned int>(size), !!(flags & FLAG_KEYFRAME), timestamp_us };
 	cb_.Write(&header, sizeof(header));
 	cb_.Write(mem, size);
