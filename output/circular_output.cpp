@@ -53,7 +53,13 @@ CircularOutput::~CircularOutput()
 		seen_keyframe |= header.keyframe;
 		if (seen_keyframe)
 		{
-			cb_.Read([fp](void *src, int n) { fwrite(src, 1, n, fp); }, header.length);
+			cb_.Read(
+				[fp](void *src, int n)
+				{
+					//LOG(1, "READ: sizeof ptr: " << sizeof(&buf_[rptr_]) << " ptr: " << &buf_[rptr_] << " n: " << n);
+					fwrite(src, n, 1, fp);
+				},
+				header.length);
 			cb_.Skip((ALIGN - header.length) & (ALIGN - 1));
 			total += header.length;
 			if (fp_timestamps_)
