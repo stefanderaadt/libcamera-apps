@@ -30,7 +30,7 @@ void FileOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint
 		openFile(timestamp_us);
 	}
 
-	LOG(1, "FileOutput: output buffer " << mem << " size " << size);
+	LOG(1, "1: sizeof mem: " << sizeof(mem) << " mem: " << mem << " size: " << size);
 	if (fp_ && size)
 	{
 		if (fwrite(mem, size, 1, fp_) != 1)

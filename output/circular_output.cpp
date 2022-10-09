@@ -19,7 +19,7 @@ struct Header
 static_assert(sizeof(Header) % ALIGN == 0, "Header should have aligned size");
 
 // Size of buffer (options->circular) is given in megabytes.
-CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), cb_(options->circular<<20)
+CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), cb_(options->circular << 20)
 {
 	// Open this now, so that we can get any complaints out of the way
 	if (options_->output == "-")
@@ -44,7 +44,8 @@ CircularOutput::~CircularOutput()
 	{
 		uint8_t *dst = (uint8_t *)&header;
 		cb_.Read(
-			[&dst](void *src, int n) {
+			[&dst](void *src, int n)
+			{
 				memcpy(dst, src, n);
 				dst += n;
 			},
@@ -70,6 +71,8 @@ CircularOutput::~CircularOutput()
 
 void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t flags)
 {
+	LOG(1, "1: sizeof mem: " << sizeof(mem) << " mem: " << mem << " size: " << size);
+
 	// First make sure there's enough space.
 	int pad = (ALIGN - size) & (ALIGN - 1);
 	while (size + pad + sizeof(Header) > cb_.Available())
@@ -79,13 +82,16 @@ void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, 
 		Header header;
 		uint8_t *dst = (uint8_t *)&header;
 		cb_.Read(
-			[&dst](void *src, int n) {
+			[&dst](void *src, int n)
+			{
 				memcpy(dst, src, n);
 				dst += n;
 			},
 			sizeof(header));
 		cb_.Skip((header.length + ALIGN - 1) & ~(ALIGN - 1));
 	}
+
+	LOG(1, "2: sizeof mem: " << sizeof(mem) << " mem: " << mem << " size: " << size);
 	Header header = { static_cast<unsigned int>(size), !!(flags & FLAG_KEYFRAME), timestamp_us };
 	cb_.Write(&header, sizeof(header));
 	cb_.Write(mem, size);
