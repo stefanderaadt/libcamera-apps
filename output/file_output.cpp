@@ -7,8 +7,7 @@
 
 #include "file_output.hpp"
 
-FileOutput::FileOutput(VideoOptions const *options)
-	: Output(options), fp_(nullptr), count_(0), file_start_time_ms_(0)
+FileOutput::FileOutput(VideoOptions const *options) : Output(options), fp_(nullptr), count_(0), file_start_time_ms_(0)
 {
 }
 
@@ -31,7 +30,7 @@ void FileOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint
 		openFile(timestamp_us);
 	}
 
-	LOG(2, "FileOutput: output buffer " << mem << " size " << size);
+	LOG(1, "FileOutput: output buffer " << mem << " size " << size);
 	if (fp_ && size)
 	{
 		if (fwrite(mem, size, 1, fp_) != 1)
