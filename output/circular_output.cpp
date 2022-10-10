@@ -21,6 +21,10 @@ static_assert(sizeof(Header) % ALIGN == 0, "Header should have aligned size");
 // Size of buffer (options->circular) is given in megabytes.
 CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), cb_(options->circular << 20)
 {
+}
+
+CircularOutput::~CircularOutput()
+{
 	// Open this now, so that we can get any complaints out of the way
 	if (options_->output == "-")
 		fp_ = stdout;
@@ -30,10 +34,7 @@ CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), c
 	}
 	if (!fp_)
 		throw std::runtime_error("could not open output file");
-}
 
-CircularOutput::~CircularOutput()
-{
 	// We do have to skip to the first I frame before dumping stuff to disk. If there are
 	// no I frames you will get nothing. Caveat emptor, methinks.
 	unsigned int total = 0, frames = 0;
