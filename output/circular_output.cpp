@@ -6,6 +6,9 @@
  */
 
 #include "circular_output.hpp"
+#include <ctime>
+#include <iomanip>
+#include <iostream>
 
 // We're going to align the frames within the buffer to friendly byte boundaries
 static constexpr int ALIGN = 16; // power of 2, please
@@ -25,13 +28,10 @@ CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), c
 
 CircularOutput::~CircularOutput()
 {
-	// Open this now, so that we can get any complaints out of the way
-	if (options_->output == "-")
-		fp_ = stdout;
-	else if (!options_->output.empty())
-	{
-		fp_ = fopen(options_->output.c_str(), "w");
-	}
+	auto t = std::time(nullptr);
+	auto tm = *std::localtime(&t);
+	fp_ = fopen(options_->output.c_str() << "-" << std::put_time(&tm, "%d%m%Y_%H%M%S") << ".h264", "w");
+
 	if (!fp_)
 		return;
 
