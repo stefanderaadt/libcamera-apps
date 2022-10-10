@@ -36,7 +36,7 @@ CircularOutput::~CircularOutput()
 
 	auto datetime = oss.str();
 
-	fp_ = fopen(options_->output + "-" + datetime + ".h264", "w");
+	fp_ = fopen(options_->output << "-" << datetime << ".h264", "w");
 
 	if (!fp_)
 		return;
