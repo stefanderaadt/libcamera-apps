@@ -32,7 +32,7 @@ CircularOutput::~CircularOutput()
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
 	std::ostringstream oss;
-	oss << std::put_time(&tm, "%d%m%Y_%H%M%S");
+	oss << std::put_time(&tm, "%Y%m%d-%H%M%S");
 
 	auto datetime = oss.str();
 
