@@ -33,7 +33,7 @@ CircularOutput::~CircularOutput()
 		fp_ = fopen(options_->output.c_str(), "w");
 	}
 	if (!fp_)
-		throw std::runtime_error("could not open output file");
+		return;
 
 	// We do have to skip to the first I frame before dumping stuff to disk. If there are
 	// no I frames you will get nothing. Caveat emptor, methinks.
