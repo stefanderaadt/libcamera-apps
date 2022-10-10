@@ -9,6 +9,7 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 // We're going to align the frames within the buffer to friendly byte boundaries
 static constexpr int ALIGN = 16; // power of 2, please
@@ -30,7 +31,11 @@ CircularOutput::~CircularOutput()
 {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
-	std::string datetime << std::put_time(&tm, "%d%m%Y_%H%M%S");
+	std::ostringstream oss;
+	oss << std::put_time(&tm, "%d%m%Y_%H%M%S");
+
+	auto datetime = oss.str();
+
 	fp_ = fopen(options_->output + "-" + datetime + ".h264", "w");
 
 	if (!fp_)
