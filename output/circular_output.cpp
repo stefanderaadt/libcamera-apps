@@ -30,7 +30,8 @@ CircularOutput::~CircularOutput()
 {
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
-	fp_ = fopen(options_->output + "-" + std::put_time(&tm, "%d%m%Y_%H%M%S").str() + ".h264", "w");
+	std::string datetime << std::put_time(&tm, "%d%m%Y_%H%M%S");
+	fp_ = fopen(options_->output + "-" + datetime + ".h264", "w");
 
 	if (!fp_)
 		return;
