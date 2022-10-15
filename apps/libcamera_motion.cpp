@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 
 #include "core/libcamera_encoder.hpp"
+#include "output/circular_output.hpp"
 #include "output/output.hpp"
 
 using namespace std::placeholders;

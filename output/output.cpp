@@ -103,7 +103,6 @@ Output *Output::Create(VideoOptions const *options)
 {
 	if (options->codec == "libav")
 		return new Output(options);
-
 	if (strncmp(options->output.c_str(), "udp://", 6) == 0 || strncmp(options->output.c_str(), "tcp://", 6) == 0)
 		return new NetOutput(options);
 	else if (!options->output.empty())
