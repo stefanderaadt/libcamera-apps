@@ -62,10 +62,26 @@ static int get_colourspace_flags(std::string const &codec)
 
 static void event_loop(LibcameraEncoder &app)
 {
+	// TODO: motion_output == add extra circular buffer output
+
+	// Default output
 	VideoOptions const *options = app.GetOptions();
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
-	app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
-	app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, output.get(), _1));
+
+	// Circular output
+	std::unique_ptr<Output> circular_output = std::unique_ptr<Output>(new CircularOutput(options));
+	app.SetEncodeOutputReadyCallback(
+		[output, circular_output](void *mem, size_t size, int64_t timestamp_us, bool keyframe)
+		{
+			output.get()->OutputReady(mem, size, timestamp_us, keyframe);
+			circular_output.get()->OutputReady(mem, size, timestamp_us, keyframe);
+		});
+	app.SetMetadataReadyCallback(
+		[output, circular_output](libcamera::ControlList &metadata)
+		{
+			output.get()->MetadataReady(metadata);
+			circular_output.get()->MetadataReady(metadata);
+		});
 
 	app.OpenCamera();
 	app.ConfigureVideo(get_colourspace_flags(options->codec));
@@ -111,13 +127,13 @@ static void event_loop(LibcameraEncoder &app)
 			LOG(1, "motion detected");
 			last_motion_time = std::chrono::high_resolution_clock::now();
 
-			// Delete old output and trigger destructor to save to file
-			output.reset();
+			// Delete old circular_output and trigger destructor to save to file
+			circular_output.reset();
 
-			// Create new output
-			output = std::unique_ptr<Output>(Output::Create(options));
-			app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, output.get(), _1, _2, _3, _4));
-			app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, output.get(), _1));
+			// Create new circular_output
+			circular_output = std::unique_ptr<Output>(new CircularOutput(options));
+			// app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, circular_output.get(), _1, _2, _3, _4));
+			// app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, circular_output.get(), _1));
 		}
 	}
 }

@@ -68,6 +68,8 @@ struct Options
 			 "Time (in ms) for which program runs")
 			("output,o", value<std::string>(&output),
 			 "Set the output file name")
+			("motion-output,mo", value<std::string>(&motion_output),
+			 "Set the output file name for detected motions")
 			("post-process-file", value<std::string>(&post_process_file),
 			 "Set the file name for configuring the post-processing")
 			("rawfull", value<bool>(&rawfull)->default_value(false)->implicit_value(true),
@@ -147,6 +149,7 @@ struct Options
 	uint64_t timeout; // in ms
 	std::string config_file;
 	std::string output;
+	std::string motion_output;
 	std::string post_process_file;
 	unsigned int width;
 	unsigned int height;

@@ -106,8 +106,6 @@ Output *Output::Create(VideoOptions const *options)
 
 	if (strncmp(options->output.c_str(), "udp://", 6) == 0 || strncmp(options->output.c_str(), "tcp://", 6) == 0)
 		return new NetOutput(options);
-	else if (options->circular)
-		return new CircularOutput(options);
 	else if (!options->output.empty())
 		return new FileOutput(options);
 	else
