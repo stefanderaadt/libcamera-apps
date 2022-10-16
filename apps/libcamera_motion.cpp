@@ -70,7 +70,7 @@ static void event_loop(LibcameraEncoder &app)
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
 
 	// Circular output
-	Output circular_output_obj = new CircularOutput(options);
+	Output *circular_output_obj = new CircularOutput(options);
 	std::unique_ptr<Output> circular_output = std::unique_ptr<Output>(circular_output_obj);
 	app.SetEncodeOutputReadyCallback(
 		[output, circular_output](void *mem, size_t size, int64_t timestamp_us, bool keyframe)
