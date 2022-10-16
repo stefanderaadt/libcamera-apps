@@ -68,7 +68,7 @@ struct Options
 			 "Time (in ms) for which program runs")
 			("output,o", value<std::string>(&output),
 			 "Set the output file name")
-			("motion-output,mo", value<std::string>(&motion_output),
+			("motion-output", value<std::string>(&motion_output),
 			 "Set the output file name for detected motions")
 			("post-process-file", value<std::string>(&post_process_file),
 			 "Set the file name for configuring the post-processing")
