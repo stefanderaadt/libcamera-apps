@@ -73,13 +73,13 @@ static void event_loop(LibcameraEncoder &app)
 	Output *circular_output_obj = new CircularOutput(options);
 	std::unique_ptr<Output> circular_output = std::unique_ptr<Output>(circular_output_obj);
 	app.SetEncodeOutputReadyCallback(
-		[output, circular_output](void *mem, size_t size, int64_t timestamp_us, bool keyframe)
+		[&output, &circular_output](void *mem, size_t size, int64_t timestamp_us, bool keyframe)
 		{
 			output.get()->OutputReady(mem, size, timestamp_us, keyframe);
 			circular_output.get()->OutputReady(mem, size, timestamp_us, keyframe);
 		});
 	app.SetMetadataReadyCallback(
-		[output, circular_output](libcamera::ControlList &metadata)
+		[&output, &circular_output](libcamera::ControlList &metadata)
 		{
 			output.get()->MetadataReady(metadata);
 			circular_output.get()->MetadataReady(metadata);
