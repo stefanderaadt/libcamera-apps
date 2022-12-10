@@ -23,7 +23,7 @@ static int signal_received;
 static void default_signal_handler(int signal_number)
 {
 	signal_received = signal_number;
-	LOG(1, "Received signal " << signal_number);
+	LOG(2, "Received signal " << signal_number);
 }
 
 static int get_key_or_signal(VideoOptions const *options, pollfd p[1])
@@ -125,7 +125,6 @@ static void event_loop(LibcameraEncoder &app)
 
 		if (now - last_motion_time > std::chrono::milliseconds(5000) && motion_detected)
 		{
-			LOG(1, "motion detected");
 			last_motion_time = std::chrono::high_resolution_clock::now();
 
 			// Delete old circular_output and trigger destructor to save to file
