@@ -68,8 +68,7 @@ static void event_loop(LibcameraEncoder &app)
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
 
 	// Circular output
-	CircularOutput *circular_output_obj = new CircularOutput(options);
-	std::unique_ptr<Output> circular_output = std::unique_ptr<Output>(circular_output_obj);
+	std::unique_ptr<Output> circular_output = std::unique_ptr<Output>((Output *)new CircularOutput(options));
 	app.SetEncodeOutputReadyCallback(
 		[&output, &circular_output](void *mem, size_t size, int64_t timestamp_us, bool keyframe)
 		{
@@ -131,8 +130,7 @@ static void event_loop(LibcameraEncoder &app)
 			circular_output.reset();
 
 			// Create new circular_output
-			*circular_output_obj = new CircularOutput(options);
-			circular_output = std::unique_ptr<Output>(circular_output_obj);
+			circular_output = std::unique_ptr<Output>((Output *)new CircularOutput(options));
 			// app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, circular_output.get(), _1, _2, _3, _4));
 			// app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, circular_output.get(), _1));
 		}
