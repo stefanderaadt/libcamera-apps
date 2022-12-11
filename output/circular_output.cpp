@@ -39,7 +39,7 @@ CircularOutput::~CircularOutput()
 
 	auto datetime = oss.str();
 
-	LOG(1, "CircularOutput 3");
+	LOG(1, "CircularOutput 3: " << (options_->motion_output + "-" + datetime + ".h264").c_str());
 
 	fp_ = fopen((options_->motion_output + "-" + datetime + ".h264").c_str(), "w");
 
