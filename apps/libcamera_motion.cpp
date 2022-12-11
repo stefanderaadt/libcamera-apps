@@ -132,8 +132,8 @@ static void event_loop(LibcameraEncoder &app)
 
 			// Create new circular_output
 			circular_output = std::unique_ptr<Output>((Output *)new CircularOutput(options));
-			// app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, circular_output.get(), _1, _2, _3, _4));
-			// app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, circular_output.get(), _1));
+			app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, circular_output.get(), _1, _2, _3, _4));
+			app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, circular_output.get(), _1));
 		}
 	}
 }
