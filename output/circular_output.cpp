@@ -29,26 +29,17 @@ CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), c
 
 CircularOutput::~CircularOutput()
 {
-	LOG(1, "~CircularOutput 1");
 	auto t = std::time(nullptr);
-	LOG(1, "~CircularOutput 2");
 	auto tm = *std::localtime(&t);
-	LOG(1, "~CircularOutput 3");
 	std::ostringstream oss;
-	LOG(1, "~CircularOutput 4");
 	oss << std::put_time(&tm, "%Y%m%d-%H%M%S");
-	LOG(1, "~CircularOutput 5");
 
 	auto datetime = oss.str();
-	LOG(1, "~CircularOutput 6");
 
 	fp_ = fopen((options_->motion_output + "-" + datetime + ".h264").c_str(), "w");
-	LOG(1, "~CircularOutput 7");
 
 	if (!fp_)
 		return;
-
-	LOG(1, "~CircularOutput 8");
 
 	// We do have to skip to the first I frame before dumping stuff to disk. If there are
 	// no I frames you will get nothing. Caveat emptor, methinks.
@@ -82,7 +73,7 @@ CircularOutput::~CircularOutput()
 			cb_.Skip((header.length + ALIGN - 1) & ~(ALIGN - 1));
 	}
 	fclose(fp_);
-	LOG(1, "Wrote " << total << " bytes (" << frames << " frames)");
+	LOG(2, "Wrote " << total << " bytes (" << frames << " frames)");
 }
 
 void CircularOutput::outputBuffer(void *mem, size_t size, int64_t timestamp_us, uint32_t flags)
