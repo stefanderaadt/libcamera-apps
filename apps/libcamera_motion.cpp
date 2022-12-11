@@ -128,19 +128,13 @@ static void event_loop(LibcameraEncoder &app)
 			LOG(1, "MOTION DETECTED 1");
 			last_motion_time = std::chrono::high_resolution_clock::now();
 
-			LOG(1, "MOTION DETECTED 2");
-
 			// Delete old circular_output and trigger destructor to save to file
 			circular_output.reset();
-
-			LOG(1, "MOTION DETECTED 3");
 
 			// Create new circular_output
 			circular_output = std::unique_ptr<Output>((Output *)new CircularOutput(options));
 			// app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, circular_output.get(), _1, _2, _3, _4));
 			// app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, circular_output.get(), _1));
-
-			LOG(1, "MOTION DETECTED 4");
 		}
 	}
 }
