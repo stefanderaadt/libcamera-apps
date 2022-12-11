@@ -63,14 +63,12 @@ static int get_colourspace_flags(std::string const &codec)
 
 static void event_loop(LibcameraEncoder &app)
 {
-	// TODO: motion_output == add extra circular buffer output
-
 	// Default output
 	VideoOptions const *options = app.GetOptions();
 	std::unique_ptr<Output> output = std::unique_ptr<Output>(Output::Create(options));
 
 	// Circular output
-	Output *circular_output_obj = new CircularOutput(options);
+	CircularOutput *circular_output_obj = new CircularOutput(options);
 	std::unique_ptr<Output> circular_output = std::unique_ptr<Output>(circular_output_obj);
 	app.SetEncodeOutputReadyCallback(
 		[&output, &circular_output](void *mem, size_t size, int64_t timestamp_us, bool keyframe)
