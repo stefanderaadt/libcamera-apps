@@ -29,21 +29,14 @@ CircularOutput::CircularOutput(VideoOptions const *options) : Output(options), c
 
 CircularOutput::~CircularOutput()
 {
-	LOG(1, "CircularOutput 1");
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
 	std::ostringstream oss;
 	oss << std::put_time(&tm, "%Y%m%d-%H%M%S");
 
-	LOG(1, "CircularOutput 2");
-
 	auto datetime = oss.str();
 
-	LOG(1, "CircularOutput 3: " << (options_->motion_output + "-" + datetime + ".h264").c_str());
-
 	fp_ = fopen((options_->motion_output + "-" + datetime + ".h264").c_str(), "w");
-
-	LOG(1, "CircularOutput 4");
 
 	if (!fp_)
 		return;
@@ -54,7 +47,6 @@ CircularOutput::~CircularOutput()
 	bool seen_keyframe = false;
 	Header header;
 	FILE *fp = fp_; // can't capture a class member in a lambda
-	LOG(1, "CircularOutput 5");
 	while (!cb_.Empty())
 	{
 		uint8_t *dst = (uint8_t *)&header;
@@ -81,7 +73,6 @@ CircularOutput::~CircularOutput()
 			cb_.Skip((header.length + ALIGN - 1) & ~(ALIGN - 1));
 	}
 	fclose(fp_);
-	LOG(1, "CircularOutput 6");
 	LOG(1, "Wrote " << total << " bytes (" << frames << " frames)");
 }
 
