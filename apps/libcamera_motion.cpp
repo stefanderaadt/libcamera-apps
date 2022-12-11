@@ -73,13 +73,17 @@ static void event_loop(LibcameraEncoder &app)
 		[&output, &circular_output](void *mem, size_t size, int64_t timestamp_us, bool keyframe)
 		{
 			output.get()->OutputReady(mem, size, timestamp_us, keyframe);
+			LOG(1, "SetEncodeOutputReadyCallback 1");
 			circular_output.get()->OutputReady(mem, size, timestamp_us, keyframe);
+			LOG(1, "SetEncodeOutputReadyCallback 2");
 		});
 	app.SetMetadataReadyCallback(
 		[&output, &circular_output](libcamera::ControlList &metadata)
 		{
 			output.get()->MetadataReady(metadata);
+			LOG(1, "SetMetadataReadyCallback 1");
 			circular_output.get()->MetadataReady(metadata);
+			LOG(1, "SetMetadataReadyCallback 2");
 		});
 
 	app.OpenCamera();
