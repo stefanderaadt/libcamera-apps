@@ -88,6 +88,9 @@ static void event_loop(LibcameraEncoder &app)
 			}
 		});
 
+	bool recording_motion = false;
+
+	// Open camera
 	app.OpenCamera();
 	app.ConfigureVideo(get_colourspace_flags(options->codec));
 	app.StartEncoder();
@@ -127,18 +130,23 @@ static void event_loop(LibcameraEncoder &app)
 		bool motion_detected = false;
 		completed_request->post_process_metadata.Get("motion_detect.result", motion_detected);
 
-		if (now - last_motion_time > std::chrono::milliseconds(5000) && motion_detected)
+		if (motion_detected && now - last_motion_time > std::chrono::milliseconds(options->motion_delay))
 		{
-			LOG(1, "motion detected");
+			LOG(1, "motion detected recording...");
+			recording_motion = true;
 			last_motion_time = std::chrono::high_resolution_clock::now();
+		}
+
+		// Wait for half of motion delay to get a recording around the detected motion
+		if (recording_motion && now - last_motion_time > std::chrono::milliseconds(options->motion_delay / 2))
+		{
+			LOG(1, "motion detected saving...");
+			recording_motion = false;
 
 			// Delete old circular_output and trigger destructor to save to file
 			circular_output.reset();
-
 			// Create new circular_output
 			circular_output = std::unique_ptr<Output>((Output *)new CircularOutput(options));
-			// app.SetEncodeOutputReadyCallback(std::bind(&Output::OutputReady, circular_output.get(), _1, _2, _3, _4));
-			// app.SetMetadataReadyCallback(std::bind(&Output::MetadataReady, circular_output.get(), _1));
 		}
 	}
 }
