@@ -132,7 +132,7 @@ static void event_loop(LibcameraEncoder &app)
 
 		if (motion_detected && now - last_motion_time > std::chrono::milliseconds(options->motion_delay))
 		{
-			LOG(1, "motion detected recording...");
+			LOG(1, "motion detected recording... Delay: " << options->motion_delay);
 			recording_motion = true;
 			last_motion_time = std::chrono::high_resolution_clock::now();
 		}
