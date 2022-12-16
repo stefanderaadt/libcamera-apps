@@ -148,6 +148,16 @@ static void event_loop(LibcameraEncoder &app)
 			// Create new circular_output
 			circular_output = std::unique_ptr<Output>((Output *)new CircularOutput(options));
 		}
+
+		auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+
+		auto value = now_ms.time_since_epoch();
+		long duration = value.count();
+
+		if (duration % 60000 == 0)
+		{
+			LOG(1, "Running at: " << duration);
+		}
 	}
 }
 
