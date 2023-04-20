@@ -59,6 +59,9 @@ struct VideoOptions : public Options
 			("frames", value<unsigned int>(&frames)->default_value(0),
 			 "Run for the exact number of frames specified. This will override any timeout set.")
 #if LIBAV_PRESENT
+			("libav-video-codec", value<std::string>(&libav_video_codec)->default_value("h264_v4l2m2m"),
+			 "Sets the libav video codec to use. "
+			 "To list available codecs, run  the \"ffmpeg -codecs\" command.")
 			("libav-format", value<std::string>(&libav_format)->default_value(""),
 			 "Sets the libav encoder output format to use. "
 			 "Leave blank to try and deduce this from the filename.\n"
@@ -68,11 +71,20 @@ struct VideoOptions : public Options
 			("audio-codec", value<std::string>(&audio_codec)->default_value("aac"),
 			 "Sets the libav audio codec to use.\n"
 			 "To list available codecs, run  the \"ffmpeg -codecs\" command.")
+			("audio-source", value<std::string>(&audio_source)->default_value("pulse"),
+			 "Audio source to record from. Valid options are \"pulse\" and \"alsa\"")
 			("audio-device", value<std::string>(&audio_device)->default_value("default"),
-			 "Audio device to record from. To list the available devices, use the following command:\n"
-			 "pactl list | grep -A2 'Source #' | grep 'Name: '")
+			 "Audio device to record from.  To list the available devices,\n"
+			 "for pulseaudio, use the following command:\n"
+			 "\"pactl list | grep -A2 'Source #' | grep 'Name: '\"\n"
+			 "or for alsa, use the following command:\n"
+			 "\"arecord -L\"")
+			("audio-channels", value<uint32_t>(&audio_channels)->default_value(0),
+			 "Number of channels to use for recording audio. Set to 0 to use default value.")
 			("audio-bitrate", value<uint32_t>(&audio_bitrate)->default_value(32768),
 			 "Set the audio bitrate for encoding, in bits/second.")
+			("audio-samplerate", value<uint32_t>(&audio_samplerate)->default_value(0),
+			 "Set the audio sampling rate in Hz for encoding. Set to 0 to use the input sample rate.")
 			("av-sync", value<int32_t>(&av_sync)->default_value(0),
 			 "Add a time offset (in microseconds) to the audio stream, relative to the video stream. "
 			 "The offset value can be either positive or negative.")
@@ -87,11 +99,15 @@ struct VideoOptions : public Options
 	unsigned int intra;
 	bool inline_headers;
 	std::string codec;
+	std::string libav_video_codec;
 	std::string libav_format;
 	bool libav_audio;
 	std::string audio_codec;
 	std::string audio_device;
+	std::string audio_source;
+	uint32_t audio_channels;
 	uint32_t audio_bitrate;
+	uint32_t audio_samplerate;
 	int32_t av_sync;
 	std::string save_pts;
 	int quality;
@@ -134,6 +150,14 @@ struct VideoOptions : public Options
 			LOG_ERROR("WARNING: consider inline headers with 'pause'/split/segment/circular");
 		if ((split || segment) && output.find('%') == std::string::npos)
 			LOG_ERROR("WARNING: expected % directive in output filename");
+
+		// From https://en.wikipedia.org/wiki/Advanced_Video_Coding#Levels
+		double mbps = ((width + 15) >> 4) * ((height + 15) >> 4) * framerate.value_or(DEFAULT_FRAMERATE);
+		if ((codec == "h264" || codec == "libav") && mbps > 245760.0)
+		{
+			LOG(1, "Overriding H.264 level 4.2");
+			level = "4.2";
+		}
 
 		return true;
 	}

@@ -64,6 +64,7 @@ else()
 endif()
 
 add_library(preview null_preview.cpp ${SRC})
+set_target_properties(preview PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 target_link_libraries(preview ${TARGET_LIBS})
 
 target_compile_definitions(preview PUBLIC LIBDRM_PRESENT=${DRM_FOUND})
@@ -72,3 +73,13 @@ target_compile_definitions(preview PUBLIC QT_PRESENT=${QT_FOUND})
 
 install(TARGETS preview LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+list(APPEND ${PROJECT_NAME}_HEADERS
+    preview.hpp
+)
+
+install(FILES
+    ${${PROJECT_NAME}_HEADERS}
+    DESTINATION
+    ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/preview
+    COMPONENT Devel
+)

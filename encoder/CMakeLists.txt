@@ -31,8 +31,23 @@ else()
 endif()
 
 add_library(encoders ${SRC})
+set_target_properties(encoders PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 target_link_libraries(encoders ${TARGET_LIBS})
 target_compile_definitions(encoders PUBLIC LIBAV_PRESENT=${LIBAV_PRESENT})
 
 install(TARGETS encoders LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+list(APPEND ${PROJECT_NAME}_HEADERS
+    encoder.hpp
+    h264_encoder.hpp
+    libav_encoder.hpp
+    mjpeg_encoder.hpp
+    null_encoder.hpp
+)
+
+install(FILES
+    ${${PROJECT_NAME}_HEADERS}
+    DESTINATION
+    ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}/encoder
+    COMPONENT Devel
+)
