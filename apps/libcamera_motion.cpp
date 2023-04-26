@@ -120,7 +120,7 @@ static void event_loop(LibcameraEncoder &app)
 		if (key == '\n')
 			output->Signal();
 
-		LOG(1, "Viewfinder frame " << count);
+		// LOG(1, "Viewfinder frame " << count);
 		auto now = std::chrono::high_resolution_clock::now();
 
 		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
